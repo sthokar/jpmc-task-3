@@ -1,59 +1,46 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import DataStreamer, { ServerRespond } from './DataStreamer';
 import Graph from './Graph';
 import './App.css';
 
-interface IState {
-  data: ServerRespond[],
-  showGraph: boolean,
-}
+function App() {
+  const [data, setData] = useState<ServerRespond[]>([]);
+  const [showGraph, setShowGraph] = useState<boolean>(false);
 
-class App extends Component<{}, IState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      data: [],
-      showGraph: false,
-    };
-  }
-
-  renderGraph() {
-    if (this.state.showGraph) {
-      return (<Graph data={this.state.data}/>)
+  const renderGraph = () => {
+    if (showGraph) {
+      return <Graph data={data} />;
     }
-  }
+  };
 
-  getDataFromServer() {
+  const getDataFromServer = () => {
     let x = 0;
     const interval = setInterval(() => {
       DataStreamer.getData((serverResponds: ServerRespond[]) => {
-        this.setState({
-          data: serverResponds,
-          showGraph: true,
-        });
+        setData(serverResponds);
+        setShowGraph(true);
       });
       x++;
       if (x > 1000) {
         clearInterval(interval);
       }
     }, 100);
-  }
+  };
 
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          Bank Merge & Co Task 3
-        </header>
-        <div className="App-content">
-          <button className="btn btn-primary Stream-button" onClick={() => {this.getDataFromServer()}}>Start Streaming Data</button>
-          <div className="Graph">
-            {this.renderGraph()}
-          </div>
-        </div>
+  return (
+    <div className="App">
+      <header className="App-header">Bank Merge & Co Task 3</header>
+      <div className="App-content">
+        <button
+          className="btn btn-primary Stream-button"
+          onClick={getDataFromServer}
+        >
+          Start Streaming Data
+        </button>
+        <div className="Graph">{renderGraph()}</div>
       </div>
-    )
-  }
+    </div>
+  );
 }
 
 export default App;
